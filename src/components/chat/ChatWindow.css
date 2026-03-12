@@ -1,0 +1,28 @@
+.chat-window {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--color-chat-bg);
+}
+
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  padding-left: 66px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+@media (min-width: 769px) {
+  .chat-header {
+    padding-left: 16px;
+  }
+}
+
+.chat-header button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
