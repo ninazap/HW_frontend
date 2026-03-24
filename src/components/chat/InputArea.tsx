@@ -1,25 +1,28 @@
 import { useState, useRef, useEffect } from 'react';
 import './InputArea.css';
 
-const InputArea: React.FC = () => {
+interface InputAreaProps {
+  onSend: (text: string) => void;
+  disabled: boolean;
+}
+
+const InputArea: React.FC<InputAreaProps> = ({ onSend, disabled }) => {
   const [value, setValue] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 100) + 'px';
+      textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 120) + 'px';
     }
   }, [value]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (value.trim()) {
-      console.log('Отправка:', value);
+    if (value.trim() && !disabled) {
+      onSend(value);
       setValue('');
-      if (textareaRef.current) {
-        textareaRef.current.style.height = 'auto';
-      }
+      if (textareaRef.current) textareaRef.current.style.height = 'auto';
     }
   };
 
@@ -31,8 +34,8 @@ const InputArea: React.FC = () => {
   };
 
   return (
-    <form className="input-area" onSubmit={handleSubmit}>
-      <button type="button" className="attach-btn">📎</button>
+    <form className={`input-area ${disabled ? 'disabled' : ''}`} onSubmit={handleSubmit}>
+      <button type="button" className="attach-btn" disabled={disabled}>📎</button>
       <textarea
         ref={textareaRef}
         value={value}
@@ -40,9 +43,9 @@ const InputArea: React.FC = () => {
         onKeyDown={handleKeyDown}
         placeholder="Введите сообщение..."
         rows={1}
+        disabled={disabled}
       />
-      <button type="submit" className="send-btn" disabled={!value.trim()}>➤</button>
-      <button type="button" className="stop-btn" disabled>⏹</button>
+      <button type="submit" className="send-btn" disabled={!value.trim() || disabled}>➤</button>
     </form>
   );
 };
