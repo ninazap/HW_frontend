@@ -10,10 +10,14 @@ interface MessageProps {
 const Message: React.FC<MessageProps> = ({ text, variant }) => {
   const [copied, setCopied] = useState(false);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
   };
 
   return (
@@ -25,9 +29,11 @@ const Message: React.FC<MessageProps> = ({ text, variant }) => {
         <div className="message-sender">{variant === 'user' ? 'Вы' : 'GigaChat'}</div>
         <ReactMarkdown>{text}</ReactMarkdown>
       </div>
-      <button className="copy-btn" onClick={handleCopy}>
-        {copied ? '✓' : '📋'}
-      </button>
+      {variant === 'assistant' && (
+        <button className={`copy-btn ${copied ? 'copied' : ''}`} onClick={handleCopy}>
+          {copied ? '✓ Скопировано' : '📋'}
+        </button>
+      )}
     </div>
   );
 };

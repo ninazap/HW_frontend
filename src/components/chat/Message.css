@@ -6,6 +6,7 @@
   display: flex;
   align-items: flex-start;
   gap: 8px;
+  margin: 4px 0;
 }
 
 .message.user {
@@ -22,10 +23,14 @@
 .message-avatar {
   font-size: 24px;
   min-width: 32px;
+  display: flex;
+  align-items: center;
 }
 
 .message-content {
   flex: 1;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .message-sender {
@@ -35,14 +40,59 @@
   opacity: 0.8;
 }
 
+.message-content p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.message-content pre {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 8px;
+  border-radius: 4px;
+  overflow-x: auto;
+  margin: 8px 0;
+}
+
+.message-content code {
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 13px;
+}
+
 .copy-btn {
   opacity: 0;
-  background: none;
+  background: var(--color-hover);
   border: none;
   cursor: pointer;
   font-size: 14px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  transition: opacity 0.2s, background 0.2s;
+  color: var(--color-text);
+  white-space: nowrap;
 }
 
-.message:hover .copy-btn {
+.message.assistant:hover .copy-btn {
   opacity: 1;
+}
+
+.copy-btn:hover {
+  background: var(--color-border);
+}
+
+.copy-btn.copied {
+  background: var(--color-success);
+  color: white;
+}
+
+@media (max-width: 480px) {
+  .message {
+    max-width: 85%;
+    padding: 10px 12px;
+  }
+
+  .copy-btn {
+    opacity: 1;
+    font-size: 12px;
+    padding: 4px 8px;
+  }
 }

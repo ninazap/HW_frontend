@@ -3,10 +3,11 @@ import './InputArea.css';
 
 interface InputAreaProps {
   onSend: (text: string) => void;
+  onStop?: () => void;
   disabled: boolean;
 }
 
-const InputArea: React.FC<InputAreaProps> = ({ onSend, disabled }) => {
+const InputArea: React.FC<InputAreaProps> = ({ onSend, onStop, disabled }) => {
   const [value, setValue] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -33,6 +34,10 @@ const InputArea: React.FC<InputAreaProps> = ({ onSend, disabled }) => {
     }
   };
 
+  const handleStop = () => {
+    if (onStop) onStop();
+  };
+
   return (
     <form className={`input-area ${disabled ? 'disabled' : ''}`} onSubmit={handleSubmit}>
       <button type="button" className="attach-btn" disabled={disabled}>📎</button>
@@ -43,9 +48,13 @@ const InputArea: React.FC<InputAreaProps> = ({ onSend, disabled }) => {
         onKeyDown={handleKeyDown}
         placeholder="Введите сообщение..."
         rows={1}
-        disabled={disabled}
+        disabled={disabled && !onStop}
       />
-      <button type="submit" className="send-btn" disabled={!value.trim() || disabled}>➤</button>
+      {disabled && onStop ? (
+        <button type="button" className="stop-btn" onClick={handleStop}>⏹ Стоп</button>
+      ) : (
+        <button type="submit" className="send-btn" disabled={!value.trim() || disabled}>➤</button>
+      )}
     </form>
   );
 };

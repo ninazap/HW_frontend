@@ -4,5 +4,11 @@
   padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
+}
+
+@media (max-width: 480px) {
+  .message-list {
+    padding: 12px;
+  }
 }

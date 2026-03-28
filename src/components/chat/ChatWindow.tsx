@@ -38,6 +38,11 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ onOpenSettings }) => {
     }, 1500);
   };
 
+  const handleStop = () => {
+    setIsLoading(false);
+    console.log('Генерация остановлена');
+  };
+
   return (
     <div className="chat-window">
       <div className="chat-header">
@@ -45,7 +50,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ onOpenSettings }) => {
         <button onClick={onOpenSettings}>⚙</button>
       </div>
       <MessageList messages={messages} isLoading={isLoading} />
-      <InputArea onSend={handleSend} disabled={isLoading} />
+      <InputArea onSend={handleSend} onStop={handleStop} disabled={isLoading} />
     </div>
   );
 };
