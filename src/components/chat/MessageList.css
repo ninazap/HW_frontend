@@ -12,3 +12,18 @@
     padding: 12px;
   }
 }
+
+.message-list-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--color-text);
+  opacity: 0.5;
+}
+
+.message-list-empty .empty-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+}

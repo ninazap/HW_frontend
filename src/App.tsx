@@ -1,3 +1,4 @@
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import './styles/theme.css';
 import AppLayout from './components/layout/AppLayout';
@@ -15,7 +16,15 @@ function App() {
     return <AuthForm onLogin={() => setIsAuthenticated(true)} />;
   }
 
-  return <AppLayout theme={theme} setTheme={setTheme} />;
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<AppLayout theme={theme} setTheme={setTheme} />} />
+        <Route path="/chat/:id" element={<AppLayout theme={theme} setTheme={setTheme} />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
 export default App;

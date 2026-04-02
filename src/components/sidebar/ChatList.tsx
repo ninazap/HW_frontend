@@ -1,19 +1,37 @@
 import ChatItem from './ChatItem';
+import type { Chat } from '../../store/chatStore';
 import './ChatList.css';
 
-const mockChats = [
-  { id: 1, title: 'Проект React', lastMessage: 'Отлично!', date: '10:30' },
-  { id: 2, title: 'API интеграция', lastMessage: 'Жду ответ...', date: '09:15' },
-  { id: 3, title: 'База данных', lastMessage: 'Готово', date: 'Вчера' },
-  { id: 4, title: 'Тестирование', lastMessage: 'Нужно проверить', date: 'Вчера' },
-  { id: 5, title: 'Документация', lastMessage: 'Обновил', date: 'Пн' },
-];
+interface ChatListProps {
+  chats: Chat[];
+  activeChatId: string | null;
+  onSelect: (id: string) => void;
+  onDelete: (id: string) => void;
+  onRename: (id: string, title: string) => void;
+}
 
-const ChatList: React.FC = () => {
+const ChatList: React.FC<ChatListProps> = ({
+  chats,
+  activeChatId,
+  onSelect,
+  onDelete,
+  onRename,
+}) => {
+  if (chats.length === 0) {
+    return <div className="chat-list-empty">Нет чатов</div>;
+  }
+
   return (
     <div className="chat-list">
-      {mockChats.map((chat) => (
-        <ChatItem key={chat.id} chat={chat} isActive={chat.id === 1} />
+      {chats.map((chat) => (
+        <ChatItem
+          key={chat.id}
+          chat={chat}
+          isActive={chat.id === activeChatId}
+          onSelect={() => onSelect(chat.id)}
+          onDelete={() => onDelete(chat.id)}
+          onRename={(title) => onRename(chat.id, title)}
+        />
       ))}
     </div>
   );
