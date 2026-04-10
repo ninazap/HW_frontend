@@ -12,12 +12,18 @@ npm run dev
 В проекте используются Vitest + React Testing Library.
 
 Запуск тестов
+
 ```bash
-npm test```
+npm test
+```
+
 Режим наблюдения (watch)
+
 ```bash
-npm test -- --watch```
-Покрытие тестами
+npm test -- --watch
+```
+
+### Покрытие тестами
 Компонент / модуль	Описание
 storage.ts	Работа с localStorage (set/get/remove)
 chatStore.ts	Zustand store: создание, удаление, переименование чатов, отправка сообщений
@@ -35,6 +41,3 @@ Zustand (управление состоянием)
 Vitest + Testing Library
 
 CSS Modules
-
-Автор
-Frontend Team
