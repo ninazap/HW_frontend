@@ -1,16 +1,18 @@
-import { useState } from 'react';
 import './SearchInput.css';
 
-const SearchInput: React.FC = () => {
-  const [query, setQuery] = useState('');
+interface SearchInputProps {
+  value: string;
+  onChange: (value: string) => void;
+}
 
+const SearchInput: React.FC<SearchInputProps> = ({ value, onChange }) => {
   return (
     <div className="search-input">
       <input
         type="text"
         placeholder="Поиск чатов..."
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
       />
     </div>
   );

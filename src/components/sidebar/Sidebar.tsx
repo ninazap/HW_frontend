@@ -29,17 +29,22 @@ const Sidebar: React.FC<SidebarProps> = ({
   searchQuery,
   onSearchChange,
 }) => {
+  // Фильтруем чаты по поисковому запросу (без учёта регистра)
+  const filteredChats = chats.filter(chat =>
+    chat.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
       <div className="sidebar-header">
         <button className="new-chat-btn" onClick={onCreateChat}>➕ Новый чат</button>
         <button className="close-btn" onClick={onClose}>❌</button>
       </div>
-      
+
       <SearchInput value={searchQuery} onChange={onSearchChange} />
-      
+
       <ChatList
-        chats={chats}
+        chats={filteredChats}
         activeChatId={activeChatId}
         onSelect={onSelectChat}
         onDelete={onDeleteChat}
