@@ -47,7 +47,7 @@ CSS Modules
 Современный веб-интерфейс для работы с нейросетью GigaChat. Приложение оптимизировано, покрыто тестами и готово к деплою.
 
 ## Демо
-🔗 [Посмотреть приложение на Vercel](TODO)
+🔗 [Посмотреть приложение на Vercel](https://ninazap-hw-frontend.vercel.app/)
 
 ## Возможности
 -  Интеграция с GigaChat API (REST + Streaming/SSE)
