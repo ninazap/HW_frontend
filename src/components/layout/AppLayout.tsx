@@ -1,11 +1,17 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo, Suspense, lazy } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useChatStore } from '../../store/chatStore';
 import Sidebar from '../sidebar/Sidebar';
 import ChatWindow from '../chat/ChatWindow';
-import SettingsPanel from '../settings/SettingsPanel';
+import MessageList from '../chat/MessageList';
+import InputArea from '../chat/InputArea';
+import { ErrorBoundary } from '../common/ErrorBoundary';
 import type { Message } from '../../types/message';
 import './AppLayout.css';
+
+// Ленивая загрузка тяжелых компонентов
+const SettingsPanel = lazy(() => import('../settings/SettingsPanel'));
+// Можно добавить и Sidebar, но обычно он нужен сразу. SettingsPanel открывается редко.
 
 interface AppLayoutProps {
   theme: string;
@@ -18,7 +24,6 @@ const AppLayout: React.FC<AppLayoutProps> = ({ theme, setTheme }) => {
   
   const {
     chats,
-    activeChatId,
     isLoading,
     error,
     selectChat,
@@ -36,17 +41,17 @@ const AppLayout: React.FC<AppLayoutProps> = ({ theme, setTheme }) => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // ✅ ТОЛЬКО URL → Store (не наоборот!)
+  // Синхронизация URL → Store
   useEffect(() => {
     if (chatIdFromUrl) {
       const chat = chats.find(c => c.id === chatIdFromUrl);
-      if (chat && chat.id !== activeChatId) {
+      if (chat && chat.id !== chatIdFromUrl) {
         selectChat(chatIdFromUrl);
       }
     }
-  }, [chatIdFromUrl, chats, activeChatId, selectChat]);
+  }, [chatIdFromUrl, chats, selectChat]);
 
-  // ✅ Авто-создание чата если нет активных
+  // Авто-создание чата если нет активных
   useEffect(() => {
     if (!chatIdFromUrl && chats.length === 0) {
       const newId = createChat();
@@ -54,9 +59,14 @@ const AppLayout: React.FC<AppLayoutProps> = ({ theme, setTheme }) => {
     }
   }, [chatIdFromUrl, chats.length, createChat, navigate]);
 
-  // ✅ Находим активный чат по URL
   const activeChat = chats.find(c => c.id === chatIdFromUrl);
 
+  // ✅ Оптимизация: Мемоизация фильтрации чатов
+  const filteredChats = useMemo(() => {
+    return searchQuery ? searchChats(searchQuery) : chats;
+  }, [searchQuery, chats, searchChats]);
+
+  // ✅ Оптимизация: Мемоизация хендлеров
   const handleSend = useCallback(async (text: string) => {
     if (!chatIdFromUrl) return;
     
@@ -71,7 +81,6 @@ const AppLayout: React.FC<AppLayoutProps> = ({ theme, setTheme }) => {
     setLoading(true);
     setError(null);
 
-    // Авто-генерация названия по первому сообщению
     if (activeChat?.messages.length === 0 && activeChat?.title === 'Новый чат') {
       const title = text.slice(0, 40) || 'Новый чат';
       updateChatTitle(chatIdFromUrl, title);
@@ -80,7 +89,6 @@ const AppLayout: React.FC<AppLayoutProps> = ({ theme, setTheme }) => {
     try {
       const { sendMessage } = await import('../../api/gigachat');
       
-      // ✅ ОТПРАВЛЯЕМ ВСЮ ИСТОРИЮ ЧАТА (контекст диалога)
       const allMessages = [...(activeChat?.messages || []), newUserMsg];
       
       const gigachatMessages = allMessages.map(msg => ({
@@ -126,8 +134,6 @@ const AppLayout: React.FC<AppLayoutProps> = ({ theme, setTheme }) => {
     setLoading(false);
   }, [setLoading]);
 
-  const filteredChats = searchQuery ? searchChats(searchQuery) : chats;
-
   return (
     <div className="app-layout">
       <Sidebar 
@@ -137,11 +143,11 @@ const AppLayout: React.FC<AppLayoutProps> = ({ theme, setTheme }) => {
         activeChatId={chatIdFromUrl}
         onCreateChat={() => {
           const newId = createChat();
-          navigate(`/chat/${newId}`);  // ✅ Только навигация, без selectChat
+          navigate(`/chat/${newId}`);
           setIsSidebarOpen(false);
         }}
         onSelectChat={(id) => {
-          navigate(`/chat/${id}`);  // ✅ Только навигация, useEffect сам вызовет selectChat
+          navigate(`/chat/${id}`);
           setIsSidebarOpen(false);
         }}
         onDeleteChat={(id) => {
@@ -158,17 +164,20 @@ const AppLayout: React.FC<AppLayoutProps> = ({ theme, setTheme }) => {
         <button className="burger-btn" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>☰</button>
         
         {activeChat ? (
-          <ChatWindow
-            key={activeChat.id}
-            chatId={activeChat.id}
-            title={activeChat.title}
-            messages={activeChat.messages}
-            isLoading={isLoading}
-            error={error}
-            onSend={handleSend}
-            onStop={handleStop}
-            onOpenSettings={() => setIsSettingsOpen(true)}
-          />
+          // ✅ Error Boundary для изоляции ошибок в списке сообщений
+          <ErrorBoundary>
+            <ChatWindow
+              key={activeChat.id}
+              chatId={activeChat.id}
+              title={activeChat.title}
+              messages={activeChat.messages}
+              isLoading={isLoading}
+              error={error}
+              onSend={handleSend}
+              onStop={handleStop}
+              onOpenSettings={() => setIsSettingsOpen(true)}
+            />
+          </ErrorBoundary>
         ) : (
           <div className="empty-chat">
             <div className="empty-icon">💬</div>
@@ -181,12 +190,15 @@ const AppLayout: React.FC<AppLayoutProps> = ({ theme, setTheme }) => {
         )}
       </main>
       
-      <SettingsPanel 
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-        theme={theme}
-        setTheme={setTheme}
-      />
+      {/* ✅ Suspense + Lazy для панели настроек */}
+      <Suspense fallback={null}>
+        <SettingsPanel 
+          isOpen={isSettingsOpen}
+          onClose={() => setIsSettingsOpen(false)}
+          theme={theme}
+          setTheme={setTheme}
+        />
+      </Suspense>
     </div>
   );
 };

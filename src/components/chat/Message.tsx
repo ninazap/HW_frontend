@@ -1,5 +1,5 @@
 import ReactMarkdown from 'react-markdown';
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import './Message.css';
 
 interface MessageProps {
@@ -38,4 +38,4 @@ const Message: React.FC<MessageProps> = ({ text, variant }) => {
   );
 };
 
-export default Message;
+export default memo(Message);

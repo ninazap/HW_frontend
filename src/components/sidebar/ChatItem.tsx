@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import type { Chat } from '../../store/chatStore';
 import './ChatItem.css';
 
@@ -82,4 +82,4 @@ const ChatItem: React.FC<ChatItemProps> = ({
   );
 };
 
-export default ChatItem;
+export default memo(ChatItem);
