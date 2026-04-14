@@ -3,8 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useChatStore } from '../../store/chatStore';
 import Sidebar from '../sidebar/Sidebar';
 import ChatWindow from '../chat/ChatWindow';
-import MessageList from '../chat/MessageList';
-import InputArea from '../chat/InputArea';
 import { ErrorBoundary } from '../common/ErrorBoundary';
 import type { Message } from '../../types/message';
 import './AppLayout.css';
@@ -140,7 +138,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ theme, setTheme }) => {
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
         chats={filteredChats}
-        activeChatId={chatIdFromUrl}
+        activeChatId={chatIdFromUrl ?? null}
         onCreateChat={() => {
           const newId = createChat();
           navigate(`/chat/${newId}`);

@@ -66,13 +66,18 @@ CSS Modules
 - **Testing:** Vitest, React Testing Library
 - **API:** Sber GigaChat API (OAuth 2.0, SSE streaming)
 
-## Структура проекта
-src/
-├── api/              # Клиент для GigaChat API
-├── components/       # UI-компоненты (Chat, Layout, Sidebar, Settings)
-├── common/           # Общие компоненты (ErrorBoundary)
-├── store/            # Zustand store + тесты логики
-├── types/            # TypeScript типы
-├── utils/            # Утилиты (storage)
-├── styles/           # Глобальные темы
-└── tests/            # Настройки Vitest
+## Запуск локально
+1) Клонируйте репозиторий:
+git clone https://github.com/ninazap/HW_frontend.git
+cd HW_frontend
+2) Установите зависимости:
+npm install
+3) Настройте переменные окружения.
+4) Запустите сервер разработки:
+npm run dev
+Приложение откроется в браузере по адресу http://localhost:5173
+
+## Переменные окружения
+Для работы приложения необходимо создать файл .env в корне проекта и добавить следующие переменные:
+- VITE_GIGACHAT_CLIENT_ID - Идентификатор клиента из личного кабинета Сбера
+- VITE_GIGACHAT_CLIENT_SECRET - Секретный ключ клиента из личного кабинета Сбера

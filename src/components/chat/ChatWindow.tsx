@@ -1,6 +1,5 @@
 import MessageList from './MessageList';
 import InputArea from './InputArea';
-import TypingIndicator from './TypingIndicator';
 import type { Message } from '../../types/message';
 import './ChatWindow.css';
 

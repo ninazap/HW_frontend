@@ -1,4 +1,4 @@
-import { useState } from 'react';
+
 import ChatList from './ChatList';
 import SearchInput from './SearchInput';
 import type { Chat } from '../../store/chatStore';
