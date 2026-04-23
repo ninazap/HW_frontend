@@ -1,53 +1,8 @@
-# Frontend Project GIGACHAT
-
-React-приложение с GIGACHAT на TypeScript.
-
-## Установка и запуск
-
-```bash
-npm install
-npm run dev
-```
-## Тестирование
-В проекте используются Vitest + React Testing Library.
-
-Запуск тестов
-
-```bash
-npm test
-```
-
-Режим наблюдения (watch)
-
-```bash
-npm test --watch
-```
-
-### Покрытие тестами
-Компоненты:
-storage.ts		Работа с localStorage (set/get/remove)
-chatStore.ts		Zustand store: создание, удаление, переименование чатов, отправка сообщений
-Sidebar.tsx		Боковая панель: поиск, фильтрация, создание нового чата
-InputArea.tsx		Поле ввода: отправка по клику / Enter, блокировка при загрузке, кнопка "Стоп"
-Message.tsx		Отображение отдельного сообщения
-
-Используемые технологии
-React 18
-
-TypeScript
-
-Zustand (управление состоянием)
-
-Vitest + Testing Library
-
-CSS Modules
-
-
 # GigaChat Web Interface
-Современный веб-интерфейс для работы с нейросетью GigaChat. Приложение оптимизировано, покрыто тестами и готово к деплою.
+Современный веб-интерфейс для работы с нейросетью GigaChat.
 
 ## Демо
-🔗 [Посмотреть приложение на Vercel](TODO)
+🔗 [Посмотреть приложение на Vercel](https://ninazap-hw-frontend.vercel.app/)
 
 ## Возможности
 -  Интеграция с GigaChat API (REST + Streaming/SSE)
@@ -81,3 +36,26 @@ npm run dev
 Для работы приложения необходимо создать файл .env в корне проекта и добавить следующие переменные:
 - VITE_GIGACHAT_CLIENT_ID - Идентификатор клиента из личного кабинета Сбера
 - VITE_GIGACHAT_CLIENT_SECRET - Секретный ключ клиента из личного кабинета Сбера
+- 
+## Тестирование
+В проекте используются Vitest + React Testing Library.
+
+Запуск тестов
+
+```bash
+npm test
+```
+
+Режим наблюдения (watch)
+
+```bash
+npm test --watch
+```
+
+### Покрытие тестами
+Компоненты:
+storage.ts		Работа с localStorage (set/get/remove)
+chatStore.ts		Zustand store: создание, удаление, переименование чатов, отправка сообщений
+Sidebar.tsx		Боковая панель: поиск, фильтрация, создание нового чата
+InputArea.tsx		Поле ввода: отправка по клику / Enter, блокировка при загрузке, кнопка "Стоп"
+Message.tsx		Отображение отдельного сообщения
