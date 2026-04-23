@@ -1,3 +1,4 @@
+import { useChatStore } from '../../store/chatStore';
 import './SettingsPanel.css';
 
 interface SettingsPanelProps {
@@ -8,11 +9,7 @@ interface SettingsPanelProps {
 }
 
 const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose, theme, setTheme }) => {
-  const model = 'GigaChat';
-  const temperature = 0.7;
-  const topP = 0.9;
-  const maxTokens = 1000;
-  const systemPrompt = '';
+  const { settings, updateSetting, availableModels } = useChatStore();
 
   if (!isOpen) return null;
 
@@ -23,32 +20,36 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose, theme, s
         
         <div className="setting-group">
           <label>Модель</label>
-          <select defaultValue={model}>
-            <option>GigaChat</option>
-            <option>GigaChat-Plus</option>
-            <option>GigaChat-Pro</option>
-            <option>GigaChat-Max</option>
+          <select value={settings.model} onChange={(e) => updateSetting('model', e.target.value)}>
+            {/* ✅ Рендерим список из API, если он пуст — показываем дефолт */}
+            {availableModels.length > 0 ? (
+              availableModels.map(model => (
+                <option key={model} value={model}>{model}</option>
+              ))
+            ) : (
+              <option value="GigaChat">GigaChat (Loading...)</option>
+            )}
           </select>
         </div>
 
         <div className="setting-group">
-          <label>Temperature: {temperature}</label>
-          <input type="range" min="0" max="2" step="0.1" defaultValue={temperature} />
+          <label>Temperature: {settings.temperature}</label>
+          <input type="range" min="0" max="2" step="0.1" value={settings.temperature} onChange={(e) => updateSetting('temperature', parseFloat(e.target.value))} />
         </div>
 
         <div className="setting-group">
-          <label>Top-P: {topP}</label>
-          <input type="range" min="0" max="1" step="0.1" defaultValue={topP} />
+          <label>Top-P: {settings.top_p}</label>
+          <input type="range" min="0" max="1" step="0.05" value={settings.top_p} onChange={(e) => updateSetting('top_p', parseFloat(e.target.value))} />
         </div>
 
         <div className="setting-group">
           <label>Max Tokens</label>
-          <input type="number" defaultValue={maxTokens} />
+          <input type="number" value={settings.max_tokens} onChange={(e) => updateSetting('max_tokens', parseInt(e.target.value))} />
         </div>
 
         <div className="setting-group">
-          <label>System Prompt</label>
-          <textarea defaultValue={systemPrompt} />
+          <label>Repetition Penalty: {settings.repetition_penalty}</label>
+          <input type="range" min="1" max="2" step="0.05" value={settings.repetition_penalty} onChange={(e) => updateSetting('repetition_penalty', parseFloat(e.target.value))} />
         </div>
 
         <div className="setting-group">
@@ -58,12 +59,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose, theme, s
           </button>
         </div>
 
-        <div className="setting-actions">
-          <button className="btn-save">Сохранить</button>
-          <button className="btn-reset">Сбросить</button>
-        </div>
-
-        <button className="close-settings" onClick={onClose}>❌</button>
+        <button className="close-settings" onClick={onClose}>❌ Закрыть</button>
       </div>
     </div>
   );

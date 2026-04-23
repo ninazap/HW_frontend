@@ -1,20 +1,17 @@
 import type { 
   GigaChatMessage, 
-  GigaChatRequestBody, 
   GigaChatResponse,
   GigaChatTokenResponse 
 } from '../types/gigachat';
+import type { AppSettings } from '../store/chatStore';
 
 const AUTH_URL = import.meta.env.VITE_GIGACHAT_AUTH_URL;
 const API_URL = import.meta.env.VITE_GIGACHAT_API_URL;
 const CLIENT_ID = import.meta.env.VITE_GIGACHAT_CLIENT_ID;
 const CLIENT_SECRET = import.meta.env.VITE_GIGACHAT_CLIENT_SECRET;
 
-// Получение access token
 export async function getAccessToken(): Promise<string> {
-  // Формируем Basic Auth: либо из client_id:secret, либо используем готовый ключ
-  const authKey = import.meta.env.VITE_GIGACHAT_AUTH_KEY;
-  const credentials = authKey || btoa(`${CLIENT_ID}:${CLIENT_SECRET}`);
+  const credentials = btoa(`${CLIENT_ID}:${CLIENT_SECRET}`);
   
   const response = await fetch(AUTH_URL, {
     method: 'POST',
@@ -33,22 +30,47 @@ export async function getAccessToken(): Promise<string> {
     throw new Error(`Failed to get access token: ${response.status}`);
   }
 
-  // ✅ Исправлено: было "const  GigaChatTokenResponse" (опечатка)
-  const data: GigaChatTokenResponse = await response.json();
-  return data.access_token;
+  // Простой вариант без type-аннотации в объявлении
+  const result = await response.json() as GigaChatTokenResponse;
+  return result.access_token;
 }
 
-// Отправка сообщения
+export async function getModels(token: string): Promise<string[]> {
+  const response = await fetch(`${API_URL}/models`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    console.warn('Failed to fetch models, using fallback.');
+    return ['GigaChat', 'GigaChat:latest'];
+  }
+
+  const result = await response.json() as GigaChatResponse;
+  
+  if (result.data && Array.isArray(result.data)) {
+    return result.data.map((m: any) => m.id);
+  }
+  return ['GigaChat', 'GigaChat:latest'];
+}
+
 export async function sendMessage(
   messages: GigaChatMessage[],
+  settings: Partial<AppSettings>, 
   onChunk?: (chunk: string) => void
 ): Promise<string> {
   const token = await getAccessToken();
 
-  const body: GigaChatRequestBody = {
-    model: 'GigaChat',
+  const body = {
+    model: settings.model || 'GigaChat',
     messages: messages,
-    temperature: 0.7,
+    temperature: settings.temperature,
+    top_p: settings.top_p,
+    max_tokens: settings.max_tokens,
+    repetition_penalty: settings.repetition_penalty,
     stream: !!onChunk,
   };
 
@@ -71,16 +93,14 @@ export async function sendMessage(
       throw new Error(`API error: ${response.status}`);
     }
 
-    // ✅ Исправлено: было "const  GigaChatResponse" (опечатка)
-    const data: GigaChatResponse = await response.json();
-    return data.choices[0].message.content;
+    const result = await response.json() as GigaChatResponse;
+    return result.choices[0].message.content;
   }
 }
 
-// Streaming completion (SSE)
 async function streamCompletion(
   token: string,
-  body: GigaChatRequestBody,
+  body: any,
   onChunk: (chunk: string) => void
 ): Promise<string> {
   const response = await fetch(`${API_URL}/chat/completions`, {
@@ -94,8 +114,6 @@ async function streamCompletion(
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    console.error('Stream error:', response.status, errorText);
     throw new Error(`API error: ${response.status}`);
   }
 
@@ -111,11 +129,9 @@ async function streamCompletion(
     const lines = chunk.split('\n');
 
     for (const line of lines) {
-      if (line.startsWith(' ')) {
+      if (line.startsWith('data: ')) {
         const data = line.slice(6);
-        
         if (data === '[DONE]') continue;
-
         try {
           const parsed = JSON.parse(data);
           const content = parsed.choices?.[0]?.delta?.content || '';
@@ -123,54 +139,9 @@ async function streamCompletion(
             fullContent += content;
             onChunk(content);
           }
-        } catch (e) {
-          console.warn('Failed to parse SSE chunk:', e);
-        }
+        } catch (e) { /* ignore */ }
       }
     }
   }
-
   return fullContent;
-}
-
-// Генерация названия чата
-export async function generateChatTitle(firstMessage: string): Promise<string> {
-  try {
-    const token = await getAccessToken();
-    
-    const response = await fetch(`${API_URL}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        model: 'GigaChat',
-        messages: [
-          { 
-            role: 'system', 
-            content: 'Создай короткое название для чата (максимум 30 символов). Отвечай только названием.' 
-          },
-          { 
-            role: 'user', 
-            content: firstMessage.slice(0, 100) 
-          },
-        ],
-        temperature: 0.3,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to generate title: ${response.status}`);
-    }
-
-    const data: GigaChatResponse = await response.json();
-    const title = data.choices[0].message.content.trim();
-    
-    return title.slice(0, 40) || 'Новый чат';
-  } catch (error) {
-    console.error('Failed to generate title:', error);
-    return 'Новый чат';
-  }
 }

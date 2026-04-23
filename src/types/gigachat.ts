@@ -27,6 +27,8 @@ export interface GigaChatResponse {
     completion_tokens: number;
     total_tokens: number;
   };
+  // ✅ Добавлено для поддержки ответа /models
+  data?: Array<{ id: string; [key: string]: any }>;
 }
 
 export interface GigaChatTokenResponse {
