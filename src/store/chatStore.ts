@@ -24,9 +24,8 @@ interface ChatState {
   isLoading: boolean;
   error: string | null;
   settings: AppSettings;
-  
-  // ✅ Новый список доступных моделей
   availableModels: string[];
+  theme: string;
 
   createChat: (title?: string) => string;
   selectChat: (chatId: string) => void;
@@ -38,9 +37,8 @@ interface ChatState {
   setError: (error: string | null) => void;
   searchChats: (query: string) => Chat[];
   updateSetting: <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => void;
-  
-  // ✅ Действие для обновления списка моделей
   setAvailableModels: (models: string[]) => void;
+  setTheme: (theme: string) => void;
 }
 
 const defaultSettings: AppSettings = {
@@ -59,15 +57,12 @@ export const useChatStore = create<ChatState>()(
       isLoading: false,
       error: null,
       settings: defaultSettings,
-      availableModels: ['GigaChat', 'GigaChat:latest'], // ✅ Дефолтное значение
+      availableModels: ['GigaChat', 'GigaChat:latest'],
+      theme: 'light',
 
+      setTheme: (theme) => set({ theme }),
       setAvailableModels: (models) => set({ availableModels: models }),
-
-      updateSetting: (key, value) => {
-        set(state => ({
-          settings: { ...state.settings, [key]: value }
-        }));
-      },
+      updateSetting: (key, value) => set(state => ({ settings: { ...state.settings, [key]: value } })),
 
       createChat: (title = 'Новый чат') => {
         const newChat: Chat = {
@@ -77,7 +72,11 @@ export const useChatStore = create<ChatState>()(
           createdAt: Date.now(),
           updatedAt: Date.now(),
         };
-        set(state => ({ chats: [newChat, ...state.chats] }));
+        // ✅ Теперь сразу делаем чат активным
+        set(state => ({
+          chats: [newChat, ...state.chats],
+          activeChatId: newChat.id,
+        }));
         return newChat.id;
       },
 
@@ -136,8 +135,8 @@ export const useChatStore = create<ChatState>()(
         chats: state.chats,
         activeChatId: state.activeChatId,
         settings: state.settings,
-        // ✅ Сохраняем список моделей, чтобы не грузить его каждый раз
-        availableModels: state.availableModels, 
+        availableModels: state.availableModels,
+        theme: state.theme, // ✅ Сохраняем тему
       }),
     }
   )
