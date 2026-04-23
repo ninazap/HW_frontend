@@ -3,6 +3,7 @@
 
 ## Демо
 🔗 [Посмотреть приложение на Vercel](https://ninazap-hw-frontend.vercel.app/)
+- Скриншоты страниц - в каталоге docs/screenshots
 
 ## Возможности
 -  Интеграция с GigaChat API (REST + Streaming/SSE)
@@ -36,7 +37,7 @@ npm run dev
 Для работы приложения необходимо создать файл .env в корне проекта и добавить следующие переменные:
 - VITE_GIGACHAT_CLIENT_ID - Идентификатор клиента из личного кабинета Сбера
 - VITE_GIGACHAT_CLIENT_SECRET - Секретный ключ клиента из личного кабинета Сбера
-- 
+
 ## Тестирование
 В проекте используются Vitest + React Testing Library.
 
